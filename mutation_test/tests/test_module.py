@@ -1,4 +1,3 @@
-import pytest
 from mutation_testing.src import *
 
 
