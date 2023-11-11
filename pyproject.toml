@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "mutation-testing"
+version = "0.1.0"
+description = ""
+authors = ["Devv64bit <pateldev7v@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+mutpy = "^0.6.1"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest-cov = "^4.1.0"
+flake8 = "^6.1.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
