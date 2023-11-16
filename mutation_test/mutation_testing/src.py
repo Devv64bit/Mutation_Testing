@@ -1,14 +1,18 @@
-class Polynomial:
+from mutation_op import MutationOperators
+
+
+class CustomPolynomial:
     def __init__(self, coefficients):
         """
-        Initialize a polynomial with a list of coefficients. The coefficients list should be in descending order of
-        the exponent, for example: [3, 0, 2] represents 3x^2 + 2.
+        Initialize a custom polynomial with a list of coefficients.
+        The coefficients list should be in descending order of the exponent,
+        for example: [3, 0, 2] represents 3x^2 + 2.
         """
         self.coefficients = coefficients
 
     def __str__(self):
         """
-        Return a string representation of the polynomial.
+        Return a string representation of the custom polynomial.
         """
         if len(self.coefficients) == 0:
             return "0"
@@ -27,97 +31,92 @@ class Polynomial:
         return " + ".join(terms)
 
     def __add__(self, other):
-        """
-        Add two polynomials and return a new polynomial.
-        """
         max_length = max(len(self.coefficients), len(other.coefficients))
-        padded_self = [0] * (max_length - len(self.coefficients)) + self.coefficients
-        padded_other = [0] * (max_length - len(other.coefficients)) + other.coefficients
-        result_coefficients = [a + b for a, b in zip(padded_self, padded_other)]
-        return Polynomial(result_coefficients)
+        padded_self = [0] * \
+            (max_length - len(self.coefficients)) + self.coefficients
+        padded_other = [
+            0] * (max_length - len(other.coefficients)) + other.coefficients
+        result_coefficients = [a + b for a,
+                               b in zip(padded_self, padded_other)]
+
+        # Mutation: Change the sign of the first coefficient
+        result_coefficients[0] = MutationOperators.mutateCoe(
+            result_coefficients[0], index=0)
+
+        return CustomPolynomial(result_coefficients)
 
     def __sub__(self, other):
-        """
-        Subtract another polynomial from this polynomial and return a new polynomial.
-        """
         max_length = max(len(self.coefficients), len(other.coefficients))
-        padded_self = [0] * (max_length - len(self.coefficients)) + self.coefficients
-        padded_other = [0] * (max_length - len(other.coefficients)) + other.coefficients
-        result_coefficients = [a - b for a, b in zip(padded_self, padded_other)]
-        return Polynomial(result_coefficients)
+        padded_self = [0] * \
+            (max_length - len(self.coefficients)) + self.coefficients
+        padded_other = [
+            0] * (max_length - len(other.coefficients)) + other.coefficients
+        result_coefficients = [a - b for a,
+                               b in zip(padded_self, padded_other)]
+
+        # Apply the mutation to coefficients only, not to the operation
+        result_coefficients = [MutationOperators.mutateCoe(
+            coef) for coef in result_coefficients]
+
+        return CustomPolynomial(result_coefficients)
 
     def __mul__(self, other):
-        """
-        Multiply this polynomial by another polynomial and return a new polynomial.
-        """
         result_deg = len(self.coefficients) + len(other.coefficients) - 1
         result_coefficients = [0] * result_deg
         for i in range(len(self.coefficients)):
             for j in range(len(other.coefficients)):
-                result_coefficients[i + j] += self.coefficients[i] * other.coefficients[j]
-        return Polynomial(result_coefficients)
+                result_coefficients[i + j] += self.coefficients[i] * \
+                    other.coefficients[j]
 
-    def evaluate(self, x):
-        """
-        Evaluate the polynomial for a given value of x.
-        """
+        # Mutation: Introduce a redundant multiplication by 1
+        result_coefficients = MutationOperators.redundantCode(
+            result_coefficients)
+
+        return CustomPolynomial(result_coefficients)
+
+    def evaluateCoe(self, x):
         result = 0
         for i, coef in enumerate(self.coefficients):
             result += coef * (x ** (len(self.coefficients) - i - 1))
+
+        # Mutation: Multiply the result by a constant factor
+        result *= MutationOperators.mutateCoe(2)
+
         return result
-    
-    def get_derivative_coefficients(self):
+
+    def getDerivativeCoe(self):
+        # Mutation: Change the coefficient of the derivative
+        return [i * coef + MutationOperators.mutateCoe(1) for (i, coef) in enumerate(list(reversed(self.coefficients))[:-1])]
+
+    def findRootBisection(self, interval_start, interval_end, epsilon=1e-6, max_iterations=100):
         """
-        Return the coefficients of the derivative polynomial.
+        Find the root of the custom polynomial using the bisection method.
+
+        Parameters:
+        - interval_start: The start of the interval for the bisection.
+        - interval_end: The end of the interval for the bisection.
+        - epsilon: The desired precision for the root.
+        - max_iterations: The maximum number of iterations for the bisection.
+
+        Returns:
+        - The estimated root within the specified interval and precision.
         """
-        return [i*coeff for (i,coeff) in enumerate(list(reversed(self.coefficients))[:-1])]
-        
+        if self.evaluateCoe(interval_start) * self.evaluateCoe(interval_end) > 0:
+            # Indicate that the chosen interval does not contain a root.
+            return None
 
-    def find_root_bisection(self, a, b, epsilon=1e-6, max_iterations=100):
-            """
-            Find a root (zero) of the polynomial using the bisection method within the interval [a, b].
-            :param a: Left boundary of the interval.
-            :param b: Right boundary of the interval.
-            :param epsilon: Tolerance for the root approximation.
-            :param max_iterations: Maximum number of iterations.
-            :return: Approximated root within the specified interval.
-            """
-            if self.evaluate(a) * self.evaluate(b) > 0:
-                raise ValueError("The chosen interval does not contain a root.")
+        for _ in range(max_iterations):
+            midpoint = (interval_start + interval_end) / 2
+            print(midpoint)
+            if abs(self.evaluateCoe(midpoint)) < epsilon:
+                return midpoint
 
-            for _ in range(max_iterations):
-                c = (a + b) / 2
-                print(c)
-                if abs(self.evaluate(c)) < epsilon:
-                    return c
-                if self.evaluate(c) * self.evaluate(a) < 0:
-                    b = c
-                else:
-                    a = c
+            # Mutation: Increase the precision of the bisection
+            if self.evaluateCoe(midpoint) * self.evaluateCoe(interval_start) < 0:
+                interval_end = midpoint + \
+                    MutationOperators.mutateCoe(1)
+            else:
+                interval_start = midpoint - \
+                    MutationOperators.mutateCoe(1)
 
-            raise ValueError("Bisection method did not converge within the maximum number of iterations.")
-
-# Example usage:
-poly1 = Polynomial([3, 0, 2])  # Represents 3x^2 + 2
-poly2 = Polynomial([1, -1])    # Represents x - 1
-
-print("poly1:", poly1)
-print("poly2:", poly2)
-
-poly_sum = poly1 + poly2
-print("Sum:", poly_sum)
-
-poly_diff = poly1 - poly2
-print("Difference:", poly_diff)
-
-poly_product = poly1 * poly2
-print("Product:", poly_product)
-
-x_value = 2
-result = poly1.evaluate(x_value)
-print(f"Evaluation of poly1 at x={x_value}: {result}")
-
-poly = Polynomial([1, 0, -2])  # Represents x^2 - 2
-print(f"Evaluation of poly at a,b: {poly.evaluate(0)}, {poly.evaluate(5)}")
-root = poly.find_root_bisection(0, 5)
-print(f"Root of {poly} within [0, 5]: {root}")
+        return None  # Indicate that the bisection method did not converge within the maximum number of iterations
