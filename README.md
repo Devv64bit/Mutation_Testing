@@ -1,5 +1,23 @@
 # Mutation Testing Report
 
+## Installation
+
+### Clone the repository to your local machine using the following Git command:
+```bash 
+git clone git@github.com:Devv64bit/Mutation_Testing.git
+cd Mutation_Testing
+```
+
+### Install the required dependencies using the following command:
+```bash 
+pip install -r requirements.txt 
+```
+
+### Run the Program using the following command:
+```bash 
+mut.py --target src --unit-test test_module --runner pytest
+```
+
 ## Introduction
 Mutation testing is a software testing technique that involves introducing small changes (mutations) to the source code and then running the test suite to determine whether the tests can detect these changes. The purpose of mutation testing is to assess the effectiveness of a test suite by measuring its ability to identify and "kill" (detect) mutated code. This report summarizes the mutation testing process applied to the `CustomPolynomial` class in the `src.py` file using the test suite provided in `test_module.py`.
 #
